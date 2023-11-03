@@ -1,0 +1,98 @@
+#cart .quantity-content {
+    margin-top: 40px;
+    padding-top: 40px;
+    width: 100%;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+}
+
+#cart .quantity-content .left-content {
+    float: left;
+    margin-right: 30px;
+}
+
+#cart .quantity-content .right-content {
+    text-align: right;
+}
+
+#cart .quantity-content .left-content h6 {
+    padding-top: 7px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #aaa;
+    position: relative;
+    z-index: 11;
+
+}
+#cart .quantity-content .right-content h6 {
+    padding-top: 7px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #aaa;
+    position: relative;
+    z-index: 11;
+
+}
+#cart .quantity {
+    display: inline-block; }
+
+#cart .quantity .input-text.qty {
+    width: 35px;
+    height: 39px;
+    padding: 0 5px;
+    text-align: center;
+    background-color: transparent;
+    border: 1px solid lavender;
+;
+}
+
+#cart .quantity.buttons_added {
+    text-align: left;
+    position: relative;
+    white-space: nowrap;
+    vertical-align: top; }
+
+#cart .quantity.buttons_added input {
+    display: inline-block;
+    margin: 0;
+    vertical-align: top;
+    box-shadow: none;
+}
+
+#cart .quantity.buttons_added .minus,
+#cart .quantity.buttons_added .plus {
+    padding: 7px 10px 8px;
+    height: 39px;
+    background-color: whitesmoke;
+    border: 1px solid lavender;
+    cursor:pointer;}
+
+#cart .quantity.buttons_added .minus {
+    border-right: 0;
+    font-weight: bolder;
+}
+
+#cart .quantity.buttons_added .plus {
+    border-left: 0;
+    font-weight: bolder;
+}
+
+#cart .quantity.buttons_added .minus:hover,
+#cart .quantity.buttons_added .plus:hover {
+    background: palevioletred;
+    color: whitesmoke;
+    font-weight: bolder;
+
+}
+
+#cart .quantity input::-webkit-outer-spin-button,
+#cart .quantity input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    margin: 0; }
+
+#cart .quantity.buttons_added .minus:focus,
+#cart .quantity.buttons_added .plus:focus {
+    outline: none; }
+
+

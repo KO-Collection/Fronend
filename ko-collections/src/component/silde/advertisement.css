@@ -1,0 +1,55 @@
+#top { height: 100% }
+#top html,
+body {
+    position: relative;
+    height: 100%;
+}
+
+#top body {
+    background: #eee;
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+#top .swiper {
+    width: 100%;
+    height: 100%;
+    /*background: #000;*/
+}
+
+#top .swiper-slide {
+    font-size: 18px;
+    color: #fff;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 40px 60px;
+}
+
+#top .parallax-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 130%;
+    height: 100%;
+    -webkit-background-size: cover;
+    background-size: cover;
+    background-position: center;
+}
+
+#top .swiper-slide .title {
+    font-size: 41px;
+    font-weight: 300;
+}
+
+#top .swiper-slide .subtitle {
+    font-size: 21px;
+}
+
+#top .swiper-slide .text {
+    font-size: 14px;
+    max-width: 400px;
+    line-height: 1.3;
+}
