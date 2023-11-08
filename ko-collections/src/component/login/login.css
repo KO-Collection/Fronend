@@ -61,8 +61,22 @@
     font-size: 16px;
     font-family: 'Poppins',sans-serif;
 }
+
+.field select{
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #222;
+    font-size: 16px;
+    font-family: 'Poppins',sans-serif;
+}
 .space{
     margin-top: 16px;
+}
+.error-message{
+    height: 20px;
 }
 .show{
     position: absolute;

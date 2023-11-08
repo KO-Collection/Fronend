@@ -19,7 +19,7 @@ const Silde = () => {
                                         <h4>We Are KO Collection</h4>
                                         <span>Cam kết mang đến sự hài lòng và những sản phẩm mới nhất đến với khách hàng.</span>
                                         <div className="main-border-button">
-                                            <a href="#">Purchase Now!</a>
+                                            <a href="#">Xem thêm !</a>
                                         </div>
                                     </div>
                                     <img style={{height: "600px"}}

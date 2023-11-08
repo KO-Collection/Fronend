@@ -349,7 +349,7 @@ header
 
 .header-area .main-nav .nav li.submenu ul {
   position: absolute;
-  width: 200px;
+  width: 300px;
   box-shadow: 0 2px 28px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;
   top: 50px;
@@ -368,12 +368,12 @@ header
 
 .header-area .main-nav .nav li.submenu ul li a {
   opacity: 1;
-  display: block;
-  background: #f7f7f7;
-  color: #2a2a2a!important;
-  padding-left: 20px;
-  height: 40px;
-  line-height: 40px;
+  display: ruby-base-container;
+  background: palevioletred;
+  color: #ffffff!important;
+  padding-left: 30px;
+  height: 50px;
+  line-height: 50px;
   -webkit-transition: all 0.3s ease 0s;
   -moz-transition: all 0.3s ease 0s;
   -o-transition: all 0.3s ease 0s;
@@ -518,7 +518,7 @@ header
 }
 
 .header-area.header-sticky {
-  min-height: 60px;
+  min-height: 56px;
 }
 
 .header-area .nav {
@@ -531,8 +531,8 @@ header
 
 @media (max-width: 1200px) {
   .header-area .main-nav .nav li {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .header-area .main-nav:before {
     display: none;
@@ -562,7 +562,7 @@ header
     padding: 0px;
   }
   .header-area .logo {
-    margin-left: 30px;
+    margin-left: 20px;
   }
   .header-area .menu-trigger {
     display: block !important;
@@ -728,7 +728,9 @@ banner
   left: 15px;
   bottom: 15px;
   text-align: center;
-  background-color: rgba(42,42,42,.97);
+  /*background-color: rgba(42,42,42,.97);*/
+  background-color: rgba(255, 105, 180, 0.65); /* Sử dụng giá trị RGBA với alpha (độ trong suốt) là 0.5 */
+
   opacity: 0;
   visibility: hidden;
   transition: all 0.5s;
@@ -1502,8 +1504,10 @@ footer
 
 footer {
   margin-top: 60px;
-  padding: 60px 0px 30px 0px;
-  background-color: #2a2a2a;
+  padding: 30px 0px 30px 0px;
+  /*background-color: palevioletred;*/
+  background-color: rgba(255, 105, 180, 1); /* Sử dụng giá trị RGBA với alpha (độ trong suốt) là 0.5 */
+
 }
 
 footer .logo {
@@ -1512,7 +1516,7 @@ footer .logo {
 
 footer ul li {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 footer ul li a {
@@ -1560,7 +1564,7 @@ footer .under-footer p {
 }
 
 footer .under-footer a {
-  color: #cff;
+  color: #ffffff;
 }
 
 footer .under-footer a:hover {
@@ -2233,7 +2237,7 @@ responsive
     display: block;
   }
   .header-area .main-nav .nav li.submenu:after {
-    right: 3px;
+    right: 6px;
   }
   .header-area .main-nav .nav li.submenu {
     padding-right: 15px;
@@ -2378,3 +2382,4 @@ responsive
     opacity: 0;
   }
 }
+
