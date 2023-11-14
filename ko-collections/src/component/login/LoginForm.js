@@ -4,6 +4,7 @@ import {Field, Form, Formik, ErrorMessage} from "formik";
 import {Link, useNavigate} from "react-router-dom";
 import {sginupUser, signinUser} from "../../service/UserService";
 import {toast} from "react-toastify";
+import Swal from "sweetalert2";
 
 function LoginForm() {
     const navigate = useNavigate();
@@ -19,9 +20,17 @@ function LoginForm() {
             toast.success("Đăng nhập thành công");
             navigate("/home");
         } catch (err) {
-            console.log(err.response.data.message);
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Đăng nhập thất bại',
+                text: err.response.data.message+"." ,
+                showConfirmButton: false,
+                timer: 1500
+            });
         }
-    };
+
+        }
 
     return (
         <>

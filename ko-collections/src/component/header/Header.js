@@ -1,12 +1,14 @@
-import React, {useState} from 'react';
-import {Link} from "react-router-dom";
-import Button from 'react-bootstrap/Button';
+import React, {useEffect, useState} from 'react';
+import {Link, useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 import './logo_ko.css';
-import {TextField} from "@mui/material";
 import './modal_search.css'
 import * as appUserService from '../../service/AutheService';
+import {collapseToast, toast} from "react-toastify";
+
 const Header = () => {
+    const [nameTarget, setNameTarget] = useState('');
+    const navigate = useNavigate();
     const [show, setShow] = useState(false);
     const [JwtToken, setJwtToken] = useState(localStorage.getItem("JWT"));
     const [userName, setUsername] = useState("");
@@ -17,27 +19,51 @@ const Header = () => {
         const response = await appUserService.infoAppUserByJwtToken();
         setUsername(response);
     };
+    useEffect(() => {
+        getUsername();
+    }, []);
+    const handleOnKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            if (nameTarget.trim() !== '') {
+                navigate(`/search/${nameTarget}`);
+            }
+        }
+    }
+    // const handleSearch = () => {
+    //     if (nameTarget.trim() !== '') {
+    //         navigate(`/search/${nameTarget}`);
+    //     }
+    //
+    // }
+    const handleListenInput = (event) => {
+        setNameTarget(event.target.value);
+    }
+    const handleLogOut = () => {
+        localStorage.removeItem("JWT");
+        setJwtToken(undefined);
+        setUsername(undefined);
+        navigate("/home");
+        toast.success("Đăng xuất thành công");
+        window.location.reload();
+    };
+
     return (
         <>
             <header className="header-area header-sticky shadow">
-                <div className="ml-5 mr-3" >
+                <div className="ml-5 mr-4">
                     <div className="row">
                         <div className="col-12">
                             <nav className="main-nav ">
-                                {/*<Link to="/home" className="logo" style={{marginTop: "1%", color: "black"}}>*/}
-                                {/*    <h2 style={{color: "white", fontWeight: "bold"}}>KO Collection</h2>*/}
-                                {/*</Link>*/}
-                                <Link className="fancy"  to="/home">
+                                <Link className="fancy" to="/home">
                                     <span className="top-key"></span>
                                     <span className="text">KO Collection</span>
                                     <span className="bottom-key-1"></span>
                                     <span className="bottom-key-2"></span>
                                 </Link>
-                                <ul className="nav text-light" style={{marginTop: "1%"}}>
+
+                                <ul className="nav text-light" style={{marginTop: "0.5%"}}>
                                     <li className="scroll-to-section">
-                                        <Link to="/home" className="active">
-                                            Trang chủ
-                                        </Link>
+                                        <Link to="/home">Trang chủ</Link>
                                     </li>
                                     <li className="submenu">
                                         <a href="javascript:;">Sản phẩm</a>
@@ -60,21 +86,91 @@ const Header = () => {
                                         <Link to="/product">Sản phẩm mới</Link>
                                     </li>
                                     <li className="scroll-to-section">
-                                        <a onClick={handleShow}>
-                                            Tìm kiếm
-                                        </a>
+                                        <div className="input-container">
+                                            <input type="text" name="text" className="input" placeholder="Tìm kiếm..."
+                                                   id="inputSearch"
+                                                   onKeyDown={handleOnKeyDown}
+                                                   onChange={handleListenInput}/>
+                                            <span className="icon">
+    <svg
+        width="19px"
+        height="19px"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth={0}/>
+      <g
+          id="SVGRepo_tracerCarrier"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+      />
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+          <path
+              opacity={1}
+              d="M14 5H20"
+              stroke="#000"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+          />
+          {" "}
+          <path
+              opacity={1}
+              d="M14 8H17"
+              stroke="#000"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+          />
+          {" "}
+          <path
+              d="M21 11.5C21 16.75 16.75 21 11.5 21C6.25 21 2 16.75 2 11.5C2 6.25 6.25 2 11.5 2"
+              stroke="#000"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+          />
+          {" "}
+          <path
+              opacity={1}
+              d="M22 22L20 20"
+              stroke="#000"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+          />
+          {" "}
+      </g>
+    </svg>
+  </span>
+                                        </div>
+
                                     </li>
                                     <li className="scroll-to-section">
                                         <Link to="/cart"><span className="fa fa-shopping-cart"></span> Giỏ hàng</Link>
                                     </li>
                                     <li className="scroll-to-section">
-                                        <Link to="/login"><span className="fa fa-user"></span> Đăng nhập</Link>
+                                        {JwtToken ? (
+                                            <li className="submenu">
+                                                <Link href="javascript:;"><span
+                                                    className="fa fa-user"></span> {userName.sub}</Link>
+                                                <ul>
+                                                    <li>
+                                                        <Link to="/#">Thông tin</Link>
+                                                    </li>
+                                                    <li>
+                                                        <a onClick={() => {
+                                                            handleLogOut();
+                                                        }}>Đăng xuất</a>
+                                                    </li>
+
+                                                </ul>
+                                            </li>
+                                        ) : (<Link to="/login"><span className="fa fa-user"></span> Đăng nhập</Link>)}
                                     </li>
                                 </ul>
-
-                                <a className="menu-trigger">
-                                    <span>Menu</span>
-                                </a>
                             </nav>
                         </div>
                     </div>
@@ -87,7 +183,7 @@ const Header = () => {
                     <div className="search">
                         <div className="search-box">
                             <div className="search-field">
-                                <input placeholder="Search..." className="input" type="text" />
+                                <input placeholder="Search..." className="input" type="text"/>
                                 <div className="search-box-icon">
                                     <button className="btn-icon-content">
                                         <i className="search-icon">

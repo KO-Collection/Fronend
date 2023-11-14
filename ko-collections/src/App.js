@@ -10,6 +10,7 @@ import SignupForm from "./component/login/SignupForm";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css'
 import React from "react";
+import SearchHome from "./component/home/SearchHome";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/detail" element={<ProductDetail/>}/>
                 <Route path="/cart" element={<Cart/>}/>
                 <Route path="/product" element={<Product/>}/>
+                <Route path="/search/:search" element={<SearchHome/>}/>
             </Routes>
             <ToastContainer></ToastContainer>
 
