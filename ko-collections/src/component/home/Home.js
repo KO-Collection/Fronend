@@ -14,10 +14,15 @@ import Header from "../header/Header";
 import Silde from "../silde/Silde";
 import Footer from "../footer/Footer";
 import {getBestSeller, getProductNew} from "../../service/HomeService";
+import * as appUserService from "../../service/AutheService";
+import {toast} from "react-toastify";
+import {createCart, getAllCartService} from "../../service/CartService";
 
 const Home = () => {
+    const navigate = useNavigate();
     const [bestsellers, setBestsellers] = useState([]);
     const [newProduct, setNewProduct] = useState([]);
+    const [userName, setUsername] = useState("");
 
     const getBestsellersOnHome = async () => {
         const data = await getBestSeller();
@@ -26,6 +31,19 @@ const Home = () => {
     const getNewProductOnHome = async () => {
         const data = await getProductNew();
         setNewProduct(data);
+    }
+    const getProductDetail = (id) => {
+        navigate(`/detail/${id}`);
+    }
+    const addCart = async (id) => {
+        const response = appUserService.infoAppUserByJwtToken();
+        if (response === undefined) {
+            navigate("/login");
+        } else {
+            const name = response.sub;
+            const result = await createCart(name, id, 1);
+            toast.success(result.data);
+        }
     }
     useEffect(() => {
         getBestsellersOnHome();
@@ -88,14 +106,17 @@ const Home = () => {
                                                                                 <div className="hover-content">
                                                                                     <ul>
                                                                                         <li>
-                                                                                            <Link to="/detail">
+                                                                                            <a onClick={() => getProductDetail(item.idProduct)}
+                                                                                            >
                                                                                                 <i className="fa fa-eye"/>
-                                                                                            </Link>
+                                                                                            </a>
                                                                                         </li>
                                                                                         <li>
-                                                                                            <Link to="/cart">
+                                                                                            <a
+                                                                                                onClick={() => addCart(item.idProduct)}
+                                                                                            >
                                                                                                 <i className="fa fa-shopping-cart"/>
-                                                                                            </Link>
+                                                                                            </a>
                                                                                         </li>
                                                                                     </ul>
                                                                                 </div>
@@ -176,9 +197,11 @@ const Home = () => {
                                                                                             </Link>
                                                                                         </li>
                                                                                         <li>
-                                                                                            <Link to="/cart">
+                                                                                            <a
+                                                                                                onClick={() => addCart(item.idProduct)}
+                                                                                            >
                                                                                                 <i className="fa fa-shopping-cart"/>
-                                                                                            </Link>
+                                                                                            </a>
                                                                                         </li>
                                                                                     </ul>
                                                                                 </div>

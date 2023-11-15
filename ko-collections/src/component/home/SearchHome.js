@@ -1,12 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useParams,useNavigate} from "react-router-dom";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
 import {createSvgIcon} from "@mui/material/utils";
 import {getSearchHome} from "../../service/HomeService";
 import Swal from "sweetalert2";
+import * as appUserService from "../../service/AutheService";
+import {createCart} from "../../service/CartService";
+import {toast} from "react-toastify";
 
 const SearchHome = () => {
+    const navigate = useNavigate();
     const [searchName, setSearchName] = useState("");
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(0);
@@ -19,6 +23,16 @@ const SearchHome = () => {
             setProducts(result.data.content);
             setTotalPage(result.data.totalPages);
         }
+    }
+    const addCart = async (id) => {
+
+        const response = appUserService.infoAppUserByJwtToken();
+        if (response === undefined) {
+            navigate("/login");
+        }else {
+        const name = response.sub;
+        const result = await createCart (name, id, 1);
+        toast.success(result.data);}
     }
 
     const nextPage = () => {
@@ -93,9 +107,9 @@ const SearchHome = () => {
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <Link to="/cart">
+                                                            <a  onClick={() => addCart(item.idProduct)}>
                                                                 <i className="fa fa-shopping-cart"/>
-                                                            </Link>
+                                                            </a>
                                                         </li>
                                                     </ul>
                                                 </div>

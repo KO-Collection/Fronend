@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import {Mousewheel, Pagination} from 'swiper/modules';
 
@@ -8,8 +8,31 @@ import 'swiper/css/pagination';
 import Header from "../header/Header";
 import Advertisement from "../silde/Advertisement";
 import Footer from "../footer/Footer";
+import {getImgProduct, getProductDetail} from "../../service/ProductService";
+import {useParams} from "react-router-dom";
 
 function ProductDetail() {
+    const [product, setProduct] = useState({});
+    const [color, setColor] = useState("");
+    const [img, setImg] = useState([]);
+    const [imgChoose, setImgChoose] = useState("");
+
+    const param = useParams();
+    const getProduct = async (id) => {
+       const result = await getProductDetail(id);
+       const resultImg = await getImgProduct(id);
+        // setImgChoose(result.data.Array[0]);
+        setImgChoose(
+            resultImg.data[0]
+        )
+        setImg(resultImg.data);
+        setProduct(result.data);
+       setColor(result.data.colorProduct.colorName)
+     }
+    useEffect(() => {
+        getProduct(param.id);
+
+    }, [param])
     return (
         <>
             <Header/>
@@ -19,37 +42,35 @@ function ProductDetail() {
                     <div className="row">
                         <div className="col-lg-2">
                             <div >
-                                <img style={{height:"200px",wight:"290px"}}
-                                     src="https://anh.24h.com.vn/upload/3-2016/images/2016-09-30/1475226698-thuong-hieu-hk-fashion-huong-toi-nu-cong-so-viet-hk-fashion--1-.jpg"
-                                     alt=""/>
+                                {img.length > 0 ? img.map((item) => {
+                                       return(
+                                    <img style={{height:"200px",wight:"290px"}}
+                                     src={item}
+                                         onClick={()=>setImgChoose(item)}
+                                     alt=""/>);
+                                }) : <div></div>}
+
                                 {/*<img src="assets/images/single-product-02.jpg" alt="" />*/}
                             </div>
-
-
                         </div>
                         <div className="col-lg-7">
                             <div className="left-images">
                                 <img style={{height: "800px"}}
-                                     src="https://anh.24h.com.vn/upload/3-2016/images/2016-09-30/1475226698-thuong-hieu-hk-fashion-huong-toi-nu-cong-so-viet-hk-fashion--1-.jpg"
+                                     defaultValue={img[0]}
+                                     src={imgChoose}
                                      alt=""/>
                                 {/*<img src="assets/images/single-product-02.jpg" alt="" />*/}
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="right-content">
-                                <h4>New Green Jacket</h4>
-                                <span className="price">$75.00</span>
-                                <ul className="stars">
-                                    <li><i className="fa fa-star"></i></li>
-                                    <li><i className="fa fa-star"></i></li>
-                                    <li><i className="fa fa-star"></i></li>
-                                    <li><i className="fa fa-star"></i></li>
-                                    <li><i className="fa fa-star"></i></li>
-                                </ul>
-                                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod kon tempor incididunt ut labore.</span>
+                                <h4>{product.productName}</h4>
+                                {/*<span className="price">{product.price}</span>*/}
+                                <span>{product.descriptionProduct}</span>
                                 <div className="quote">
-                                    <i className="fa fa-quote-left"></i>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiuski smod.</p>
+                                    {/*<i className="fa fa-quote-left"></i>*/}
+                                    <p>Màu sắc: {color}</p>
+                                    {/*<p>Nguồn gốc: {product.origin.originName}</p>*/}
                                 </div>
                                 <div className="quantity-content">
                                     <div className="left-content">
@@ -76,7 +97,8 @@ function ProductDetail() {
                                     </div>
                                 </div>
                                 <div className="total">
-                                    <h4>Giá: $210.00</h4>
+                                    <h4>{product.price}</h4>
+                                    <br/>
                                     <div className="main-border-button ">
                                         <a href="#">Thêm vào giỏ hàng</a>
                                     </div>
