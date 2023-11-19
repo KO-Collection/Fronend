@@ -3,18 +3,102 @@ import Header from "../header/Header";
 import Advertisement from "../silde/Advertisement";
 import './cart.css';
 import './form-order-cart.css';
+import './checkbox.css';
 import Footer from "../footer/Footer";
 import * as appUserService from "../../service/AutheService";
-import {createCart, getAllCartService} from "../../service/CartService";
+import * as orderService from "../../service/OrderService";
+import {createCart, deleteCart, getAllCartService} from "../../service/CartService";
 import {toast} from "react-toastify";
 import {Link, useNavigate} from "react-router-dom";
+import {PayPalButtons, PayPalScriptProvider} from "@paypal/react-paypal-js";
+import Swal from "sweetalert2";
 
 const Cart = () => {
     const [cart, setCart] = useState([]);
+    const [orderProduct, setOrderProduct] = useState([]);
+    const [selectedIds, setSelectedIds] = useState([]);
     const [userName, setUsername] = useState("");
     const [totalAmount, setTotalAmount] = useState(0);
+    const [formOrder, setFormOrder] = useState(false);
     const navigate = useNavigate();
+    const sumPay = totalAmount / 20000;
 
+    const deleteProduct = async (product) => {
+        const response = appUserService.infoAppUserByJwtToken();
+        const name = response.sub;
+
+        const result = await deleteCart(name, product);
+        getAllCart();
+    }
+    const deleteForPay = async (product) => {
+        const response = appUserService.infoAppUserByJwtToken();
+        const name = response.sub;
+
+        const result = await deleteCart(name, product);
+        // getAllCart();
+    }
+    //----Chọn product tính tiền-----
+
+    // Hàm xử lý sự kiện khi checkbox được bấm
+    const handleCheckboxChange = (item) => {
+        const isSelected = selectedIds.includes(item);
+        if (isSelected) {
+            const updatedSelectedIds = selectedIds.filter(selectedItem => selectedItem.idProduct !== item.idProduct);
+            setSelectedIds(updatedSelectedIds);
+        } else {
+            setSelectedIds([...selectedIds, item]);
+        }
+    };
+    const isProductSelected = (productId) => {
+        return selectedIds.some(item => item.idProduct === productId);
+    };
+
+    // -----Thanh toán paypal-----//
+    const createOrder = (data, actions) => {
+        return actions.order.create({
+            purchase_units: [
+                {
+                    amount: {
+                        value: sumPay,
+                        currency_code: 'USD', // Đặt lại thành 'USD' nếu bạn sử dụng môi trường sandbox
+                    },
+                },
+            ],
+        })
+    }
+    const handleOrderDetail = async (value) => {
+        for (let i = 0; i < selectedIds.length; i++) {
+            let idProduct = selectedIds[i].idProduct;
+            let quantity = selectedIds[i].quantityOrder;
+            let price = selectedIds[i].price * selectedIds[i].quantityOrder;
+            const resultOrderdetaill= await orderService.createOrderDetail(idProduct,quantity,price,value);
+            deleteForPay(idProduct);
+        }
+    }
+    const onApprove = async (data, actions) => {
+        console.log('Payment was approved!');
+        try {
+            const response = appUserService.infoAppUserByJwtToken();
+            const name = response.sub;
+            const resultOrder = await orderService.createOrder(name);
+            const idOrder = resultOrder.data;
+            handleOrderDetail(idOrder);
+            Swal.fire({
+                icon: 'success',
+                title: 'Thanh toán thành công!',
+                showConfirmButton: false,
+            });
+            navigate("/home");
+        } catch (error) {
+            console.error('Error handling payment success:', error);
+            // console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
+
+        }
+    };
+    const onError = (err) => {
+        console.error('Payment failed:', err);
+        console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
+    };
     // const getUsername =  () => {
     //     setUsername(response.sub);
     //     console.log(response.sub);
@@ -24,9 +108,10 @@ const Cart = () => {
         const response = appUserService.infoAppUserByJwtToken();
         if (response === undefined) {
             navigate("/login");
-        }else {
+        } else {
             const result = await getAllCartService(response.sub);
-            setCart(result)
+            setCart(result);
+            console.log(result);
         }
     }
     const addCart = async (id) => {
@@ -50,82 +135,114 @@ const Cart = () => {
         getAllCart();
     }, [])
     useEffect(() => {
-        const calculatedTotalAmount = cart.reduce((total, item) => {
+        const calculatedTotalAmount = selectedIds.reduce((total, item) => {
             return total + item.price * item.quantityOrder;
         }, 0);
 
         setTotalAmount(calculatedTotalAmount);
-    }, [cart]);
+    }, [selectedIds]);
 
     return (
         <>
             <Header/>
             <Advertisement/>
-            <div className="row mr-1 ml-1">
-                <div className="col-9 d-flex justify-content-center" id="cart">
+            <div className="row mx-auto" style={{width: "95%"}}>
+                <div className="col-8 d-flex justify-content-center" id="cart">
                     <div>
-                        <div style={{marginBottom: "3%"}}>
+                        <div style={{marginBottom: "3%", wight: "100%"}}>
                             <h2>GIỎ HÀNG</h2>
                         </div>
                         {cart ?
-                            <table className="table">
+                            <table className="table" id="product">
                                 <tbody>
                                 <tr>
-                                    <th style={{width: "20%"}}/>
+                                    <th style={{width: "5%"}}/>
+                                    <th style={{width: "10%"}}/>
                                     <th style={{width: "40%"}}>Sản phẩm</th>
-                                    <th style={{width: "10%"}} className="justify-content-end">Số lượng</th>
-                                    <th style={{width: "20%", paddingLeft: "5%"}}>Tổng tiền</th>
+                                    <th style={{width: "5%"}} className="justify-content-end">Số lượng</th>
+                                    <th style={{width: "20%"}}>Tiền</th>
+                                    <th style={{width: "10%", paddingLeft: "50px"}}>Xóa</th>
                                 </tr>
                                 {cart.map((item) => (
-                                    <tr>
-                                        <td className="d-flex  py-3">
-                                            <img
-                                                style={{width: 160, height: 240}}
-                                                src={item.img}
-                                                alt="áaa"
-                                            />
-                                        </td>
-                                        <td className="">
-                                            <div className="quantity-content">
-                                                <div className="left-content">
-                                                    <h6>{item.nameProduct}</h6>
+                                        <tr>
+                                            <td>
+                                                <div className="checkbox-wrapper-10">
+                                                    <input defaultChecked="" type="checkbox"
+                                                           className="tgl tgl-flip"
+                                                           id={`cb${item.idProduct}`}
+                                                           onChange={() => handleCheckboxChange(item)}
+                                                    />
+                                                    <label
+                                                        htmlFor={`cb${item.idProduct}`}
+                                                        data-tg-on={isProductSelected(item.idProduct) && "Đặt"}
+                                                        data-tg-off="Chưa!"
+                                                        className="tgl-btn"
+                                                    />
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="quantity-content">
-                                                <div className="left-content">
-                                                    <div className="quantity buttons_added d-flex ">
-                                                        <input type="button" defaultValue="<" className="minus"
-                                                               onClick={() => prevCart(item.idProduct)}/>
-                                                        <input
-                                                            type="number"
-                                                            max=""
-                                                            name="quantity"
-                                                            // defaultValue={item.quantityOrder}
-                                                            value={item.quantityOrder}
-                                                            title="Qty"
-                                                            className="input-text qty text"
-                                                            pattern=""
-                                                            inputMode=""
-                                                            disabled
-                                                        />
-                                                        <input type="button" defaultValue=">" className="plus"
-                                                               onClick={() => addCart(item.idProduct)}
-                                                               onClick={() => addCart(item.idProduct)}
-                                                        />
+                                            </td>
+                                            <td className="d-flex  py-3">
+                                                <img
+                                                    style={{width: 100, height: 140}}
+                                                    src={item.img}
+                                                    alt="áaa"
+                                                />
+                                            </td>
+                                            <td className="">
+                                                <div className="quantity-content">
+                                                    <div className="left-content">
+                                                        <h6>{item.nameProduct}</h6>
+                                                        <div>Kích cỡ</div>
+                                                        <div>Màu sắc</div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="quantity-content">
-                                                <div className="right-content" style={{paddingLeft: "30%"}}>
-                                                    <h6>{item.price * item.quantityOrder}</h6>
+                                            </td>
+                                            <td>
+                                                <div className="quantity-content">
+                                                    <div className="left-content" style={{paddingTop: "10%"}}>
+                                                        <div className="quantity buttons_added d-flex ">
+                                                            <input type="button" defaultValue="<" className="minus"
+                                                                   onClick={() => prevCart(item.idProduct)}
+                                                                   disabled={isProductSelected(item.idProduct)}
+                                                            />
+                                                            <input
+                                                                type="number"
+                                                                max=""
+                                                                name="quantity"
+                                                                // defaultValue={item.quantityOrder}
+                                                                value={item.quantityOrder}
+                                                                title="Qty"
+                                                                className="input-text qty text"
+                                                                pattern=""
+                                                                inputMode=""
+                                                                disabled
+                                                            />
+                                                            <input type="button" defaultValue=">" className="plus"
+                                                                   onClick={() => addCart(item.idProduct)}
+                                                                   disabled={isProductSelected(item.idProduct)}
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                    </tr>)
+                                            </td>
+                                            <td>
+                                                <div className="quantity-content">
+                                                    <div className="right-content"
+                                                         style={{paddingTop: "5%"}}>
+                                                        <h6>{(item.price * item.quantityOrder).toLocaleString("vi-VN")} đ</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="quantity-content">
+                                                    <div className="right-content" style={{paddingLeft: "30%"}}>
+                                                        <a onClick={() => deleteProduct(item.idProduct)}>
+                                                            <span className="fa fa-trash" style={{fontSize: "20px"}}></span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
                                 )}
 
                                 </tbody>
@@ -133,37 +250,73 @@ const Cart = () => {
                     </div>
 
                 </div>
-                <div className="col-1">
-                    <div className="sticky" style={{height: height}}>
-                        <form className="plan-chooser">
-                            <div className="header">
-                                <span className="title"> Phiếu thanh toán</span>
-                                {/*<p className="desc">Amet minim mollit non deserunt ullamco est sit .</p>*/}
-                            </div>
-                            <div className="plan-option">
-                                <input defaultValue="monthly" id="monthly" name="plan" type="radio"/>
-                                <label htmlFor="monthly">
-                                    <div className="plan-info">
-                                        <span className="plan-cost">{totalAmount}</span>
-                                        <span className="plan-name">Tổng tiền</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div className="plan-option">
-                                <input defaultValue="annual" id="annual" name="plan" type="radio"/>
-                                <label htmlFor="annual">
-                                    <div className="plan-info">
-                                        <span className="plan-cost">{totalAmount}</span>
-                                        <span className="plan-name">Tạm tính</span>
-                                    </div>
-                                    <span className="reduction"> Giảm 20% </span>
-                                </label>
-                            </div>
-                            <a href="#" title="" className="choose-btn">
-                                {" "}
-                                Thanh toán{" "}
-                            </a>
-                        </form>
+                <div className="col-3 " style={{marginTop: "5%", marginLeft: "3%"}}>
+                    <div className=" " style={{height: height}}>
+                        <div className="sticky-1">
+                            <form className="plan-chooser shadow">
+                                <div className="header">
+                                    <h4>Hóa đơn</h4>
+                                </div>
+                                <div className="plan-option">
+                                    <input defaultValue="monthly" id="monthly" name="plan" type="radio"/>
+                                    <label htmlFor="monthly">
+                                        <div className="plan-info">
+                                            <span className="plan-cost">{(totalAmount).toLocaleString("vi-VN")} đ</span>
+                                            <span className="plan-name">Tổng tiền</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div className="plan-option">
+                                    <input defaultValue="annual" id="annual" name="plan" type="radio"/>
+                                    <label htmlFor="annual">
+                                        <div className="plan-info">
+                                            <span className="plan-cost">{(totalAmount).toLocaleString("vi-VN")} đ</span>
+                                            <span className="plan-name">Tạm tính</span>
+                                        </div>
+                                        <span className="reduction"> Giảm 20% </span>
+                                    </label>
+                                </div>
+                                {(!formOrder) && <a onClick={() => setFormOrder(true)} title="" className="choose-btn">
+                                    {" "}
+                                    Thanh toán{" "}
+                                </a>}
+
+                            </form>
+                            {formOrder && <form className="plan-chooser shadow" style={{marginTop: "3%"}}>
+                                <div className="header">
+                                    <span className="title"> Thông tin đặt hàng</span>
+                                    {/*<p className="desc">Amet minim mollit non deserunt ullamco est sit .</p>*/}
+                                </div>
+                                <div style={{marginTop: "3%"}}>
+                                    <span>Tên khách hàng</span>
+                                    <input className="form-control" defaultValue="Đàm Thoại Tin" id="monthly"
+                                           name="plan" type="text"/>
+                                </div>
+                                <div style={{marginTop: "3%"}}>
+                                    <span>Email</span>
+                                    <input className="form-control" defaultValue="Đàm Thoại Tin" id="monthly"
+                                           name="plan" type="email"/>
+                                </div>
+                                <div style={{marginTop: "3%"}}>
+                                    <span>Số điện thoại</span>
+                                    <input className="form-control" defaultValue="Đàm Thoại Tin" id="monthly"
+                                           name="plan" type="email"/>
+                                </div>
+                                <div style={{marginTop: "3%", marginBottom: "3%"}}>
+                                    <span>Địa chỉ</span>
+                                    <input className="form-control" defaultValue="Đàm Thoại Tin" id="monthly"
+                                           name="plan" type="text"/>
+                                </div>
+
+                                <PayPalScriptProvider
+                                    options={{"client-id": "ATVLu4Mi0WmojMeUtCh-wTtCBb37GExzwi18B7kLRGSX9bUvnLq92Rnm02UnBCRPu_KGIgnkFOCOP94E"}}>
+                                    <PayPalButtons createOrder={createOrder} onApprove={onApprove} onError={onError}/>
+                                </PayPalScriptProvider>
+                            </form>}
+
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -172,62 +325,13 @@ const Cart = () => {
                 <div className="col-3">
                 </div>
                 <div className="col-6">
-                    <div className="d-flex justify-content-center mr-3 ml-3">
-                        <section className="container shadow">
-                            <header>Thông tin đặt hàng</header>
-                            <form className="form" action="#">
-                                <div className="input-box">
-                                    <label>Họ và tên</label>
-                                    <input required="" placeholder="Đàm Thoại Tin" type="text"/>
-                                </div>
-                                <div className="column">
-                                    <div className="input-box">
-                                        <label>Số điện thoại</label>
-                                        <input required="" placeholder="0975380649" type="telephone"/>
-                                    </div>
-                                </div>
-                                <div className="column">
-                                    <div className="input-box">
-                                        <label>Email</label>
-                                        <input required="" placeholder="damthoaitin@gmail.com" type="email"/>
-                                    </div>
-                                </div>
-                                <div className="input-box address">
-                                    <label>Địa chỉ</label>
-                                    <input required="" placeholder="16 Mỹ Khê 6 Phước Mỹ Sơn Trà Đà Nẵng" type="text"/>
-                                </div>
-                                <button>Cập nhật</button>
-                            </form>
-                        </section>
-
-                    </div>
 
                 </div>
 
                 <div className="col-3">
-                    {/*<div className="d-flex justify-content-end " style={{marginTop:"3%"}}>*/}
-                    {/*    <h5 style={{marginRight: "3%"}}>Tổng tiền</h5>*/}
-                    {/*    <h6 style={{fontSize: 20, fontWeight: 700, color: "#aaa"}}>150.0000.000</h6>*/}
-
-                    {/*</div>*/}
-                    {/*<div className="d-flex justify-content-end mt-3">*/}
-                    {/*    <button*/}
-                    {/*        style={{*/}
-                    {/*            borderRadius: 20,*/}
-                    {/*            wight: "120px",*/}
-                    {/*            fontWeight: "bold",*/}
-                    {/*            padding: "10px 30px",*/}
-                    {/*            background: "palevioletred",*/}
-                    {/*            color: "white",*/}
-                    {/*            border: "white"*/}
-                    {/*        }}*/}
-                    {/*    >*/}
-                    {/*        Thanh toán*/}
-                    {/*    </button>*/}
-                    {/*</div>*/}
-
 
                 </div>
+
 
             </div>
             <Footer/>

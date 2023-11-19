@@ -23,6 +23,7 @@ const Home = () => {
     const [bestsellers, setBestsellers] = useState([]);
     const [newProduct, setNewProduct] = useState([]);
     const [userName, setUsername] = useState("");
+    const [cartUpdated, setCartUpdated] = useState(false);
 
     const getBestsellersOnHome = async () => {
         const data = await getBestSeller();
@@ -44,6 +45,7 @@ const Home = () => {
             const result = await createCart(name, id, 1);
             toast.success(result.data);
         }
+        setCartUpdated(prevState => !prevState);
     }
     useEffect(() => {
         getBestsellersOnHome();
@@ -55,20 +57,13 @@ const Home = () => {
 
     return (
         <>
-            {/*<div className="header" >*/}
-            {/*    <div className="scrolling-text">*/}
-            {/*        This is the scrolling text in the header.*/}
-            {/*    </div>*/}
-            {/*</div>*/}
-            <Header/>
+            <Header cartUpdated={cartUpdated} />
             <Silde/>
-
             <div name="products">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="women-item-carousel">
-                                {/* Your Swiper component */}
                                 <section className="section" id="women">
                                     <div className="container">
                                         <div className="row">

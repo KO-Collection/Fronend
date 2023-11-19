@@ -5,8 +5,9 @@ import './logo_ko.css';
 import './modal_search.css'
 import * as appUserService from '../../service/AutheService';
 import {collapseToast, toast} from "react-toastify";
+import {getAllCartService} from "../../service/CartService";
 
-const Header = () => {
+const Header = ({ cartUpdated }) => {
     const [nameTarget, setNameTarget] = useState('');
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
@@ -15,13 +16,28 @@ const Header = () => {
     const [userId, setUserId] = useState("");
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [cartLenght,setCartLenght]=useState(0);
     const getUsername = async () => {
         const response = await appUserService.infoAppUserByJwtToken();
         setUsername(response);
     };
+    const getAllCart = async () => {
+        const response = appUserService.infoAppUserByJwtToken();
+        if (response === undefined) {
+            setCartLenght(0);
+        }else {
+            const result = await getAllCartService(response.sub);
+            setCartLenght(result.length);
+            // const arrayLength = result.length;
+
+        }
+    };
     useEffect(() => {
         getUsername();
     }, []);
+    useEffect(() => {
+      getAllCart();
+    }, [cartUpdated]);
     const handleOnKeyDown = (event) => {
         if (event.key === 'Enter') {
             if (nameTarget.trim() !== '') {
@@ -149,7 +165,7 @@ const Header = () => {
 
                                     </li>
                                     <li className="scroll-to-section">
-                                        <Link to="/cart"><span className="fa fa-shopping-cart"></span> Giỏ hàng</Link>
+                                        <Link to="/cart"><span className="fa fa-shopping-cart"></span>({cartLenght}) Giỏ hàng</Link>
                                     </li>
                                     <li className="scroll-to-section">
                                         {JwtToken ? (
