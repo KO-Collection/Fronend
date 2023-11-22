@@ -7,8 +7,8 @@ import './page.css';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
-import {Link, useNavigate} from "react-router-dom";
-import {FreeMode, Pagination, Autoplay} from 'swiper/modules';
+import {Link, useNavigate, useParams} from "react-router-dom";
+import {FreeMode, Pagination, Autoplay,Navigation} from 'swiper/modules';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import Header from "../header/Header";
 import Silde from "../silde/Silde";
@@ -17,6 +17,8 @@ import {getBestSeller, getProductNew} from "../../service/HomeService";
 import * as appUserService from "../../service/AutheService";
 import {toast} from "react-toastify";
 import {createCart, getAllCartService} from "../../service/CartService";
+import {getSizeProduct} from "../../service/ProductService";
+import ProductCard from "./ProductCard";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -24,8 +26,11 @@ const Home = () => {
     const [newProduct, setNewProduct] = useState([]);
     const [userName, setUsername] = useState("");
     const [cartUpdated, setCartUpdated] = useState(false);
-
-    const getBestsellersOnHome = async () => {
+    const param = useParams();
+    const getBestsellersOnHome = async (id) => {
+        if (id === 1 ){
+            setCartUpdated(prevState => !prevState);
+        }
         const data = await getBestSeller();
         setBestsellers(data);
     }
@@ -35,6 +40,13 @@ const Home = () => {
     }
     const getProductDetail = (id) => {
         navigate(`/detail/${id}`);
+    }
+    const getSize = async (value) => {
+      const result = await getSizeProduct(value);
+      return result.data;
+    }
+    const handleDataByLoadCart = (data) => {
+        setCartUpdated(prevState => !prevState);
     }
     const addCart = async (id) => {
         const response = appUserService.infoAppUserByJwtToken();
@@ -50,7 +62,7 @@ const Home = () => {
     useEffect(() => {
         getBestsellersOnHome();
         getNewProductOnHome();
-    }, [])
+    }, [param.id])
     useEffect(() => {
         document.title = 'Ko Collection - Trang chủ'
     }, [])
@@ -83,50 +95,22 @@ const Home = () => {
                                                         <Swiper
                                                             slidesPerView={3}
                                                             spaceBetween={30}
-                                                            freeMode={true}
+                                                            // centeredSlides={true}
+                                                            // freeMode={true}
                                                             autoplay={{
-                                                                delay: 3000,
+                                                                delay: 5000,
                                                                 disableOnInteraction: false,
                                                             }}
                                                             pagination={{
                                                                 clickable: true,
                                                             }}
-                                                            modules={[FreeMode, Pagination, Autoplay]}
+                                                            navigation={true}
+                                                            modules={[FreeMode, Pagination, Autoplay,Navigation]}
                                                             className="mySwiper"
                                                         >
                                                             {newProduct && newProduct.map((item) => {
                                                                 return (<SwiperSlide>
-                                                                        <div className="item">
-                                                                            <div className="thumb">
-                                                                                <div className="hover-content">
-                                                                                    <ul>
-                                                                                        <li>
-                                                                                            <a onClick={() => getProductDetail(item.idProduct)}
-                                                                                            >
-                                                                                                <i className="fa fa-eye"/>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                        <li>
-                                                                                            <a
-                                                                                                onClick={() => addCart(item.idProduct)}
-                                                                                            >
-                                                                                                <i className="fa fa-shopping-cart"/>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div>
-                                                                                <img style={{
-                                                                                    height: "520px",
-                                                                                    wight: "80%"
-                                                                                }}
-                                                                                     srcSet={item.img}
-                                                                                     alt=""/>
-                                                                            </div>
-                                                                            <div className="down-content">
-                                                                                <h4>{item.nameProduct}</h4>
-                                                                                <span>{item.price}</span>
-                                                                            </div>
-                                                                        </div>
+                                                                       <ProductCard product={item} handleData={handleDataByLoadCart} />
                                                                     </SwiperSlide>
                                                                 )
                                                             })}
@@ -162,56 +146,29 @@ const Home = () => {
                                     </div>
                                     <div className="container">
                                         <div className="row">
-                                            <div className="col-lg-12">
+                                            <div className="col-lg-12" >
                                                 <div className="women-item-carousel">
                                                     <div className="owl-women-item owl-carousel d-flex">
 
                                                         <Swiper
                                                             slidesPerView={3}
                                                             spaceBetween={30}
-                                                            freeMode={true}
+                                                            // centeredSlides={true}
+                                                            // freeMode={true}
                                                             autoplay={{
-                                                                delay: 3000,
+                                                                delay: 5000,
                                                                 disableOnInteraction: false,
                                                             }}
                                                             pagination={{
                                                                 clickable: true,
                                                             }}
-                                                            modules={[FreeMode, Pagination, Autoplay]}
+                                                            navigation={true}
+                                                            modules={[FreeMode, Pagination, Autoplay,Navigation]}
                                                             className="mySwiper"
                                                         >
                                                             {bestsellers && bestsellers.map((item) => {
                                                                 return (<SwiperSlide>
-                                                                        <div className="item">
-                                                                            <div className="thumb">
-                                                                                <div className="hover-content">
-                                                                                    <ul>
-                                                                                        <li>
-                                                                                            <Link to="/detail">
-                                                                                                <i className="fa fa-eye"/>
-                                                                                            </Link>
-                                                                                        </li>
-                                                                                        <li>
-                                                                                            <a
-                                                                                                onClick={() => addCart(item.idProduct)}
-                                                                                            >
-                                                                                                <i className="fa fa-shopping-cart"/>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div>
-                                                                                <img style={{
-                                                                                    height: "520px",
-                                                                                    wight: "80%"
-                                                                                }}
-                                                                                     srcSet={item.img}
-                                                                                     alt=""/>
-                                                                            </div>
-                                                                            <div className="down-content">
-                                                                                <h4>{item.nameProduct}</h4>
-                                                                                <span>{item.price}</span>
-                                                                            </div>
-                                                                        </div>
+                                                                        <ProductCard product={item} handleData={handleDataByLoadCart} />
                                                                     </SwiperSlide>
                                                                 )
                                                             })}

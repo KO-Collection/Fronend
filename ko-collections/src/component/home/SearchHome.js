@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import * as appUserService from "../../service/AutheService";
 import {createCart} from "../../service/CartService";
 import {toast} from "react-toastify";
+import ProductCard from "./ProductCard";
 
 const SearchHome = () => {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const SearchHome = () => {
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(0);
     const [totalPage, setTotalPage] = useState();
+    const [cartUpdated, setCartUpdated] = useState(false);
     const param = useParams();
     const getProductList = async (searchName,page) => {
         const result = await getSearchHome(searchName, page);
@@ -24,17 +26,19 @@ const SearchHome = () => {
             setTotalPage(result.data.totalPages);
         }
     }
-    const addCart = async (id) => {
-
-        const response = appUserService.infoAppUserByJwtToken();
-        if (response === undefined) {
-            navigate("/login");
-        }else {
-        const name = response.sub;
-        const result = await createCart (name, id, 1);
-        toast.success(result.data);}
+    // const addCart = async (id) => {
+    //
+    //     const response = appUserService.infoAppUserByJwtToken();
+    //     if (response === undefined) {
+    //         navigate("/login");
+    //     }else {
+    //     const name = response.sub;
+    //     const result = await createCart (name, id, 1);
+    //     toast.success(result.data);}
+    // }
+    const handleDataByLoadCart = (data) => {
+        setCartUpdated(prevState => !prevState);
     }
-
     const nextPage = () => {
         if (page + 1 < totalPage) {
             setPage((pre) => pre + 1)
@@ -74,9 +78,9 @@ const SearchHome = () => {
     );
     return (
         <>
-            <Header/>
+            <Header cartUpdated={cartUpdated} />
             {products ?
-                <div className="container-lg">
+                <div className="mx-auto" style={{width:"95%"}}>
                 <section className="section" id="products">
                     <div className="container">
                         <div className="row">
@@ -92,38 +96,7 @@ const SearchHome = () => {
                             {products.length > 0 ? products.map((item) => {
                                 return (
                                     <div className="col-lg-3">
-                                        <div className="item mx-auto" style={{wight: "80%"}}>
-                                            <div className="thumb">
-                                                <div className="hover-content">
-                                                    <ul>
-                                                        <li>
-                                                            <Link to="/detail">
-                                                                <i className="fa fa-eye"/>
-                                                            </Link>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product.html">
-                                                                <i className="fa fa-star"/>
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a  onClick={() => addCart(item.idProduct)}>
-                                                                <i className="fa fa-shopping-cart"/>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <img
-                                                    src={item.img}
-                                                    alt=""/>
-                                            </div>
-                                            <div className="down-content">
-                                                <h4>{item.nameProduct}</h4>
-                                                <span>{item.price}</span>
-                                                <ul className="stars">
-                                                </ul>
-                                            </div>
-                                        </div>
+                                        <ProductCard product={item} handleData={handleDataByLoadCart} />
                                     </div>
                                 )
                             }) : <h1 className='no-products-found'>Không có sản phẩm nào phù hợp</h1>}

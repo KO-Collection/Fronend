@@ -12,6 +12,7 @@ import {toast} from "react-toastify";
 import {Link, useNavigate} from "react-router-dom";
 import {PayPalButtons, PayPalScriptProvider} from "@paypal/react-paypal-js";
 import Swal from "sweetalert2";
+import {getProductDetail} from "../../service/ProductService";
 
 const Cart = () => {
     const [cart, setCart] = useState([]);
@@ -20,37 +21,44 @@ const Cart = () => {
     const [userName, setUsername] = useState("");
     const [totalAmount, setTotalAmount] = useState(0);
     const [formOrder, setFormOrder] = useState(false);
+    const [cartUpdated, setCartUpdated] = useState(false);
     const navigate = useNavigate();
     const sumPay = totalAmount / 20000;
 
-    const deleteProduct = async (product) => {
+    const deleteProduct = async (product,size) => {
         const response = appUserService.infoAppUserByJwtToken();
         const name = response.sub;
 
-        const result = await deleteCart(name, product);
+        const result = await deleteCart(name, product,size);
+        setCartUpdated(prevState => !prevState);
         getAllCart();
     }
-    const deleteForPay = async (product) => {
+    const getQuantityProduct = async (id) => {
+        const result = await getProductDetail(id);
+        // console.log(result.data.quantity);
+        let quantity = result.data.quantity;
+        return quantity;
+    }
+    const deleteForPay = async (product,size) => {
         const response = appUserService.infoAppUserByJwtToken();
         const name = response.sub;
-
-        const result = await deleteCart(name, product);
+        const result = await deleteCart(name, product,size);
         // getAllCart();
     }
     //----Chọn product tính tiền-----
 
     // Hàm xử lý sự kiện khi checkbox được bấm
     const handleCheckboxChange = (item) => {
-        const isSelected = selectedIds.includes(item);
+        const isSelected = isProductSelected(item.idProduct, item.idSizeProduct);
         if (isSelected) {
-            const updatedSelectedIds = selectedIds.filter(selectedItem => selectedItem.idProduct !== item.idProduct);
+            const updatedSelectedIds = selectedIds.filter(selectedItem => !(selectedItem.idProduct === item.idProduct && selectedItem.idSizeProduct === item.idSizeProduct));
             setSelectedIds(updatedSelectedIds);
         } else {
             setSelectedIds([...selectedIds, item]);
         }
     };
-    const isProductSelected = (productId) => {
-        return selectedIds.some(item => item.idProduct === productId);
+    const isProductSelected = (productId,productSize) => {
+        return selectedIds.some(item => item.idProduct === productId && item.idSizeProduct === productSize);
     };
 
     // -----Thanh toán paypal-----//
@@ -69,10 +77,11 @@ const Cart = () => {
     const handleOrderDetail = async (value) => {
         for (let i = 0; i < selectedIds.length; i++) {
             let idProduct = selectedIds[i].idProduct;
+            let idSize = selectedIds[i].idSizeProduct;
             let quantity = selectedIds[i].quantityOrder;
             let price = selectedIds[i].price * selectedIds[i].quantityOrder;
-            const resultOrderdetaill= await orderService.createOrderDetail(idProduct,quantity,price,value);
-            deleteForPay(idProduct);
+            const resultOrderdetaill= await orderService.createOrderDetail(idProduct,quantity,price,value,idSize);
+            deleteForPay(idProduct,idSize);
         }
     }
     const onApprove = async (data, actions) => {
@@ -88,7 +97,7 @@ const Cart = () => {
                 title: 'Thanh toán thành công!',
                 showConfirmButton: false,
             });
-            navigate("/home");
+            navigate("/home/1");
         } catch (error) {
             console.error('Error handling payment success:', error);
             // console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
@@ -114,18 +123,29 @@ const Cart = () => {
             console.log(result);
         }
     }
-    const addCart = async (id) => {
-
+    const addCart = async (id,idSize) => {
         const response = appUserService.infoAppUserByJwtToken();
 
         const name = response.sub;
-        const result = await createCart(name, id, 1);
+        const result = await createCart(name, id,idSize, 1);
+        // if (result.status === 201){
+        //     setBtnNext(false);
+        // }
+        // else if (result.status === 200){
+        //     setBtnNext(true);
+        // }
         getAllCart();
     }
-    const prevCart = async (id) => {
+    const prevCart = async (id,idSize) => {
         const response = appUserService.infoAppUserByJwtToken();
         const name = response.sub;
-        const result = await createCart(name, id, -1);
+        const result = await createCart(name, id,idSize,-1);
+        // if (result.status === 201){
+        //     setBtnPrev(false);
+        // }
+        // else if (result.status === 200){
+        //     setBtnPrev(true);
+        // }
         getAllCart();
     }
     const [height, setHeight] = useState("100%");
@@ -144,7 +164,7 @@ const Cart = () => {
 
     return (
         <>
-            <Header/>
+            <Header cartUpdated={cartUpdated}/>
             <Advertisement/>
             <div className="row mx-auto" style={{width: "95%"}}>
                 <div className="col-8 d-flex justify-content-center" id="cart">
@@ -152,7 +172,7 @@ const Cart = () => {
                         <div style={{marginBottom: "3%", wight: "100%"}}>
                             <h2>GIỎ HÀNG</h2>
                         </div>
-                        {cart ?
+                        {cart && cart.length !== 0 ?
                             <table className="table" id="product">
                                 <tbody>
                                 <tr>
@@ -169,13 +189,13 @@ const Cart = () => {
                                                 <div className="checkbox-wrapper-10">
                                                     <input defaultChecked="" type="checkbox"
                                                            className="tgl tgl-flip"
-                                                           id={`cb${item.idProduct}`}
+                                                           id={`cb${item.idProduct}${item.idSizeProduct}`}
                                                            onChange={() => handleCheckboxChange(item)}
                                                     />
                                                     <label
-                                                        htmlFor={`cb${item.idProduct}`}
-                                                        data-tg-on={isProductSelected(item.idProduct) && "Đặt"}
-                                                        data-tg-off="Chưa!"
+                                                        htmlFor={`cb${item.idProduct}${item.idSizeProduct}`}
+                                                        data-tg-on={isProductSelected(item.idProduct,item.idSizeProduct) && "Đặt"}
+                                                        data-tg-off={!isProductSelected(item.idProduct,item.idSizeProduct) && "Chưa"}
                                                         className="tgl-btn"
                                                     />
                                                 </div>
@@ -191,8 +211,8 @@ const Cart = () => {
                                                 <div className="quantity-content">
                                                     <div className="left-content">
                                                         <h6>{item.nameProduct}</h6>
-                                                        <div>Kích cỡ</div>
-                                                        <div>Màu sắc</div>
+                                                        <div>Kích cỡ: {item.sizeProduct}</div>
+                                                        <div>Màu sắc: {item.colorName}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -201,8 +221,8 @@ const Cart = () => {
                                                     <div className="left-content" style={{paddingTop: "10%"}}>
                                                         <div className="quantity buttons_added d-flex ">
                                                             <input type="button" defaultValue="<" className="minus"
-                                                                   onClick={() => prevCart(item.idProduct)}
-                                                                   disabled={isProductSelected(item.idProduct)}
+                                                                   onClick={() => prevCart(item.idProduct,item.idSizeProduct)}
+                                                                   disabled={isProductSelected(item.idProduct,item.idSizeProduct) ||  item.quantityOrder < 2}
                                                             />
                                                             <input
                                                                 type="number"
@@ -217,8 +237,8 @@ const Cart = () => {
                                                                 disabled
                                                             />
                                                             <input type="button" defaultValue=">" className="plus"
-                                                                   onClick={() => addCart(item.idProduct)}
-                                                                   disabled={isProductSelected(item.idProduct)}
+                                                                   onClick={() => addCart(item.idProduct,item.idSizeProduct)}
+                                                                   disabled={isProductSelected(item.idProduct,item.idSizeProduct) || (item.quantityOrder >= getQuantityProduct(item.idProduct))}
                                                             />
                                                         </div>
                                                     </div>
@@ -233,13 +253,15 @@ const Cart = () => {
                                                 </div>
                                             </td>
                                             <td>
-                                                <div className="quantity-content">
-                                                    <div className="right-content" style={{paddingLeft: "30%"}}>
-                                                        <a onClick={() => deleteProduct(item.idProduct)}>
-                                                            <span className="fa fa-trash" style={{fontSize: "20px"}}></span>
-                                                        </a>
-                                                    </div>
-                                                </div>
+                                                {!isProductSelected(item.idProduct,item.idSizeProduct) && (
+                                                        <div className="quantity-content">
+                                                            <div className="right-content" style={{ paddingLeft: "30%" }}>
+                                                                <a onClick={() => deleteProduct(item.idProduct,item.idSizeProduct)}>
+                                                                    <span className="fa fa-trash" style={{ fontSize: "20px" }}></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                )}
                                             </td>
                                         </tr>
                                     )
@@ -276,13 +298,14 @@ const Cart = () => {
                                         <span className="reduction"> Giảm 20% </span>
                                     </label>
                                 </div>
-                                {(!formOrder) && <a onClick={() => setFormOrder(true)} title="" className="choose-btn">
+                                {totalAmount > 0 &&(!formOrder) && <a onClick={() => setFormOrder(true)} title="" className="choose-btn">
                                     {" "}
                                     Thanh toán{" "}
                                 </a>}
 
                             </form>
-                            {formOrder && <form className="plan-chooser shadow" style={{marginTop: "3%"}}>
+                            {totalAmount > 0 && formOrder &&
+                            <form className="plan-chooser shadow" style={{marginTop: "3%"}}>
                                 <div className="header">
                                     <span className="title"> Thông tin đặt hàng</span>
                                     {/*<p className="desc">Amet minim mollit non deserunt ullamco est sit .</p>*/}

@@ -1,4 +1,4 @@
-import React, {useEffect,useState} from "react";
+import React, {useEffect, useState} from "react";
 import Header from "../header/Header";
 import Advertisement from "../silde/Advertisement";
 import Accordion from '@mui/material/Accordion';
@@ -8,10 +8,38 @@ import Typography from '@mui/material/Typography';
 import {createSvgIcon} from '@mui/material/utils';
 import Footer from "../footer/Footer";
 import {Link, useParams} from "react-router-dom";
+import './productSearch.css';
 import {getSearchHome} from "../../service/HomeService";
+import {getAllColorProduct, getAllSizeProduct, getAllTypeProduct} from "../../service/ProductService";
 
 const Product = () => {
+    const [color, setColor] = useState([]);
+    const [colorChoose, setColorChoose] = useState();
+    const [size, setSize] = useState([]);
+    const [sizeChoose, setSizeChoose] = useState();
+    const [type, setType] = useState([]);
+    const [typeChoose, setTypeChoose] = useState();
+    const getColorList = async () => {
+        const result = await getAllColorProduct();
+        setColor(result.data);
 
+        for (let i = 0; i < result.data.length; i++) {
+
+        }
+    }
+    const getSizeList = async () => {
+        const result = await getAllSizeProduct();
+        setSize(result.data);
+    }
+    const getTypeList = async () => {
+        const result = await getAllTypeProduct();
+        setType(result.data);
+    }
+    useEffect(() => {
+        getTypeList();
+        getColorList();
+        getSizeList();
+    }, [])
 
     const PlusIcon = createSvgIcon(
         // credit: plus icon from https://heroicons.com/
@@ -51,11 +79,50 @@ const Product = () => {
                                         aria-controls="panel1a-content"
                                         id="panel1a-header"
                                     >
-                                        <Typography>Size</Typography>
+                                        <Typography>Loại sản phẩm</Typography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <Typography>
+                                            <div className="radio-group">
+                                                {type && type.map((item) => (
+                                                    <div key={item}>
+                                                    </div>
+                                                ))}
 
+
+                                                {/*  */}
+                                                {/*<input className="radio-input" name="radio-group" id="radio2"*/}
+                                                {/*       type="radio"/>*/}
+                                                {/*<label className="radio-label" htmlFor="radio2">*/}
+                                                {/*    <span className="radio-inner-circle"/>*/}
+                                                {/*    500k- 800k*/}
+                                                {/*</label>*/}
+                                                {/*<input className="radio-input" name="radio-group" id="radio3"*/}
+                                                {/*       type="radio"/>*/}
+                                                {/*<label className="radio-label" htmlFor="radio3">*/}
+                                                {/*    <span className="radio-inner-circle"/>*/}
+                                                {/*    Trên 800k*/}
+                                                {/*</label>*/}
+                                            </div>
+
+                                        </Typography>
+                                    </AccordionDetails>
+                                </Accordion>
+                                <Accordion>
+                                    <AccordionSummary
+                                        expandIcon={<PlusIcon/>}
+                                        aria-controls="panel1a-content"
+                                        id="panel1a-header"
+                                    >
+                                        <Typography>Kích cỡ</Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography>
+                                            {size && size.map((item) => (
+                                                <div key={item}>
+
+                                                </div>
+                                            ))}
                                         </Typography>
                                     </AccordionDetails>
                                 </Accordion>
@@ -69,7 +136,8 @@ const Product = () => {
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <Typography>
-
+                                            <div className="radio-group">
+                                            </div>
                                         </Typography>
                                     </AccordionDetails>
                                 </Accordion>
@@ -83,8 +151,16 @@ const Product = () => {
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <Typography>
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                                            malesuada lacus ex, sit amet blandit leo lobortis eget.
+                                            <div className="d-flex">
+                                                <div style={{
+                                                    width: "37.5px",
+                                                    height: "37.5px",
+                                                    background: "red",
+                                                    borderRadius: "50%"
+                                                }}>
+                                                </div>
+
+                                            </div>
                                         </Typography>
                                     </AccordionDetails>
                                 </Accordion>
@@ -92,55 +168,6 @@ const Product = () => {
 
                         </div>
                         <div className="row col-9">
-                            <div className="col-lg-4">
-                                <div className="item mx-auto" style={{wight: "90%"}}>
-                                    <div className="thumb">
-                                        <div className="hover-content">
-                                            <ul>
-                                                <li>
-                                                    <Link to="/detail">
-                                                        <i className="fa fa-eye"/>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <a href="single-product.html">
-                                                        <i className="fa fa-star"/>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <Link to="/cart">
-                                                        <i className="fa fa-shopping-cart"/>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <img
-                                            src="https://product.hstatic.net/1000184601/product/women_trang_dam_nu_hoa_nhi_summer_wdr_2034_couple_tx_f0cdfd8591e345ee800dd19b375fbf9b_2048x2048.jpg"
-                                            alt=""/>
-                                    </div>
-                                    <div className="down-content">
-                                        <h4>Classic Spring</h4>
-                                        <span>$120.00</span>
-                                        <ul className="stars">
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
                             <div className="col-lg-4">
                                 <div className="item">
                                     <div className="thumb">
@@ -170,104 +197,6 @@ const Product = () => {
                                     <div className="down-content">
                                         <h4>Air Force 1 X</h4>
                                         <span>$90.00</span>
-                                        <ul className="stars">
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-4">
-                                <div className="item">
-                                    <div className="thumb">
-                                        <div className="hover-content">
-                                            <ul>
-                                                <li>
-                                                    <Link to="/detail">
-                                                        <i className="fa fa-eye"/>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <a href="">
-                                                        <i className="fa fa-star"/>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <Link to="/cart">
-                                                        <i className="fa fa-shopping-cart"/>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <img style={{height: "438px"}}
-                                             src="https://product.hstatic.net/1000184601/product/women_xanh-nhat_2_8e674079328c448b9c275017332217d0_2048x2048.jpg"
-                                             alt=""/>
-                                    </div>
-                                    <div className="down-content">
-                                        <h4>Love Nana ‘20</h4>
-                                        <span>$150.00</span>
-                                        <ul className="stars">
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-4">
-                                <div className="item">
-                                    <div className="thumb">
-                                        <div className="hover-content">
-                                            <ul>
-                                                <li>
-                                                    <Link to="/detail">
-                                                        <i className="fa fa-eye"/>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <a href="single-product.html">
-                                                        <i className="fa fa-star"/>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <Link to="/cart">
-                                                        <i className="fa fa-shopping-cart"/>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <img
-                                            src="https://product.hstatic.net/1000184601/product/women_xam-dom-melange__3__4bbad06f81404c51a0f86f81cf601458_2048x2048.jpg"
-                                            alt=""/>
-                                    </div>
-                                    <div className="down-content">
-                                        <h4>New Green Jacket</h4>
-                                        <span>$75.00</span>
                                         <ul className="stars">
                                             <li>
                                                 <i className="fa fa-star"/>

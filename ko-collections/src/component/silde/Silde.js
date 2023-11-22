@@ -43,7 +43,7 @@ const Silde = () => {
                                                 // pagination={{
                                                 //     clickable: true,
                                                 // }}
-                                                navigation={true}
+                                                navigation={false}
                                                 modules={[Autoplay, Pagination, Navigation]}
                                                 className="mySwiper"
                                             >
@@ -119,10 +119,10 @@ const Silde = () => {
                                                     delay: 2500,
                                                     disableOnInteraction: false,
                                                 }}
-                                                pagination={{
-                                                    clickable: true,
-                                                }}
-                                                navigation={true}
+                                                // pagination={{
+                                                //     clickable: true,
+                                                // }}
+                                                navigation={false}
                                                 modules={[Autoplay, Pagination, Navigation]}
                                                 className="mySwiper"
                                             >

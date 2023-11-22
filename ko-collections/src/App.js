@@ -12,18 +12,21 @@ import 'react-toastify/dist/ReactToastify.css'
 import React from "react";
 import SearchHome from "./component/home/SearchHome";
 import OrderBill from "./component/order/OrderBill";
+import ViewUser from "./component/login/ViewUser";
+import InformationUser from "./component/login/InfomationUser";
 
 function App() {
     return (
         <>
             <Routes>
-                <Route path="/home" element={<Home/>}/>
+                <Route path="/home/:id" element={<Home/>}/>
                 <Route path="/login" element={<LoginForm/>}/>
                 <Route path="/signup" element={<SignupForm/>}/>
                 <Route path="/detail/:id" element={<ProductDetail/>}/>
                 <Route path="/cart" element={<Cart/>}/>
                 <Route path="/order" element={<OrderBill/>}/>
                 <Route path="/product" element={<Product/>}/>
+                <Route path="/view" element={<ViewUser/>}/>
                 <Route path="/search/:search" element={<SearchHome/>}/>
             </Routes>
             <ToastContainer></ToastContainer>

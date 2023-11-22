@@ -73,7 +73,7 @@
 .wrapper .black:hover,
 .wrapper .black:hover .tooltip,
 .wrapper .black:hover .tooltip::before {
-    background: rgba(255, 105, 180, 1);;
+    background: rgba(255, 105, 180, 1);
     color: white;
     fill: white;
 }
