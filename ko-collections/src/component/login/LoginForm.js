@@ -18,7 +18,7 @@ function LoginForm() {
             const result = await signinUser(value);
             localStorage.setItem("JWT",result.data.token);
             toast.success("Đăng nhập thành công");
-            navigate("/home");
+            navigate("/home/1");
         } catch (err) {
             Swal.fire({
                 position: 'center',
@@ -88,7 +88,7 @@ function LoginForm() {
                             <Link to="/signup">Đăng ký</Link>
                         </div>
                         <div className="signup">
-                            <Link to="/home">Quay lại </Link>
+                            <Link to="/home/1">Quay lại </Link>
                         </div>
                     </div>
                 </div>

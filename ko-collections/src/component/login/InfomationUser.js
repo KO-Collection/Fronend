@@ -6,15 +6,18 @@ import {differenceInYears, parseISO, isAfter} from "date-fns";
 import * as Yup from "yup";
 import XRegExp from "xregexp";
 import Swal from "sweetalert2";
+import {useNavigate} from "react-router-dom";
 
 
 const InformationUser = () => {
+    const navigate = useNavigate();
     const [account, setAccount] = useState();
     const getUsers = async () => {
         const response = appUserService.infoAppUserByJwtToken();
-        const name = response.sub;
-        const user = await getUserDetail(name);
-        setAccount(user);
+        if (response !== undefined){
+            const name = response.sub;
+            const user = await getUserDetail(name);
+        setAccount(user);}
     }
     const validateBirth = (value) => {
         const currentDate = new Date();
@@ -32,14 +35,16 @@ const InformationUser = () => {
     const handleSubmit = async (value, setErrors) => {
         try {
             const response = appUserService.infoAppUserByJwtToken();
-            const name = response.sub;
-            const result = await updateUser(value,name);
-            Swal.fire(
-                "Cập nhật thành công !",
-                "Tài khoản " + name + " đã được cập nhật!",
-                "success"
-            );
-            getUsers();
+            if (response !== undefined) {
+                const name = response.sub;
+                const result = await updateUser(value, name);
+                Swal.fire(
+                    "Cập nhật thành công !",
+                    "Tài khoản " + name + " đã được cập nhật!",
+                    "success"
+                );
+                getUsers();
+            }
         } catch (err) {
             if (err.response.data) {
                 setErrors(err.response.data);
@@ -160,7 +165,8 @@ const InformationUser = () => {
                                  className="d-flex justify-content-center">
                                 <button className="btn btn-dark w-50" type={"submit"}>Cập nhật</button>
                             </div>)}
-                    </Form>)}
+                    </Form>
+                )}
             </Formik>
         </>
     );

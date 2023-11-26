@@ -20,3 +20,12 @@ export const getAllOrder = async (user,page) => {
     console.log(e);
   }
 }
+export const getAllOrderDetail = async (user,page,time) => {
+  try {
+    const result = await axios.get(`http://localhost:8080/api/v1/order/detail?name_user=${user}&page=${page}&time=${time}`);
+    console.log(result);
+    return result;
+  }catch (e){
+    console.log(e);
+  }
+}

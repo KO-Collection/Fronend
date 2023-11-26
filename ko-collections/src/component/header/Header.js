@@ -79,23 +79,23 @@ const Header = ({cartUpdated}) => {
                                     <li className="scroll-to-section">
                                         <Link to="/home/1">Trang chủ</Link>
                                     </li>
-                                    <li className="submenu">
-                                        <a href="javascript:;">Sản phẩm</a>
-                                        <ul>
-                                            <li>
-                                                <Link to="/product">Áo ấm</Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/product">Đầm</Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/product">Chân váy</Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/product">Áo sơ mi</Link>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                    {/*<li className="submenu">*/}
+                                    {/*    <a href="javascript:;">Sản phẩm</a>*/}
+                                    {/*    <ul>*/}
+                                    {/*        <li>*/}
+                                    {/*            <Link to="/product">Áo ấm</Link>*/}
+                                    {/*        </li>*/}
+                                    {/*        <li>*/}
+                                    {/*            <Link to="/product">Đầm</Link>*/}
+                                    {/*        </li>*/}
+                                    {/*        <li>*/}
+                                    {/*            <Link to="/product">Chân váy</Link>*/}
+                                    {/*        </li>*/}
+                                    {/*        <li>*/}
+                                    {/*            <Link to="/product">Áo sơ mi</Link>*/}
+                                    {/*        </li>*/}
+                                    {/*    </ul>*/}
+                                    {/*</li>*/}
                                     <li className="scroll-to-section">
                                         <Link to="/product">Sản phẩm mới</Link>
                                     </li>

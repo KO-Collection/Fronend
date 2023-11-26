@@ -25,3 +25,8 @@ export const getAllTypeProduct = async () => {
     const result = await axios.get(`http://localhost:8080/api/v1/product/type`);
     return result;
 }
+export const getAllProduct = async (time,color,min,max,type) => {
+    const result = await axios.get(`http://localhost:8080/api/v1/product/list?time=${time}&color=${color}&min=${min}&max=${max}&type=${type}`);
+    console.log(result)
+    return result;
+}

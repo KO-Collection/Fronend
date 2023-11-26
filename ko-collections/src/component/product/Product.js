@@ -10,22 +10,39 @@ import Footer from "../footer/Footer";
 import {Link, useParams} from "react-router-dom";
 import './productSearch.css';
 import {getSearchHome} from "../../service/HomeService";
-import {getAllColorProduct, getAllSizeProduct, getAllTypeProduct} from "../../service/ProductService";
+import {getAllColorProduct, getAllProduct, getAllSizeProduct, getAllTypeProduct} from "../../service/ProductService";
+import ProductCard from "../home/ProductCard";
 
 const Product = () => {
     const [color, setColor] = useState([]);
-    const [colorChoose, setColorChoose] = useState();
+    const [chooseColor, setChooseColor] = useState([]);
+    const [time, setTime] = useState("");
+    const [min, setMin] = useState(0);
+    const [max, setMax] = useState(20000000);
+    const [product, setProduct] = useState([]);
+    // const [colorChoose, setColorChoose] = useState([]);
     const [size, setSize] = useState([]);
     const [sizeChoose, setSizeChoose] = useState();
     const [type, setType] = useState([]);
-    const [typeChoose, setTypeChoose] = useState();
+    const [typeChoose, setTypeChoose] = useState([]);
+    const [cartUpdated, setCartUpdated] = useState(false);
+
+    const getProductList = async (time, color, min, max, type) => {
+        const result = await getAllProduct(time, color, min, max, type);
+        if (result.status === 200) {
+            setProduct(result.data);
+        }
+        else if (result.status === 204){
+            setProduct([]);
+        }
+    }
+
+    const handleDataByLoadCart = (data) => {
+        setCartUpdated(prevState => !prevState);
+    }
     const getColorList = async () => {
         const result = await getAllColorProduct();
         setColor(result.data);
-
-        for (let i = 0; i < result.data.length; i++) {
-
-        }
     }
     const getSizeList = async () => {
         const result = await getAllSizeProduct();
@@ -35,11 +52,38 @@ const Product = () => {
         const result = await getAllTypeProduct();
         setType(result.data);
     }
+    const getPrice = async (min,max) => {
+        setMin(min);
+        setMax(max);
+    }
+
+    const handleCheckboxClick = (itemName) => {
+        setTypeChoose(prevTypeChoose => {
+            if (prevTypeChoose.includes(itemName)) {
+                return prevTypeChoose.filter(type => type !== itemName);
+            } else {
+                return [...prevTypeChoose, itemName];
+            }
+        });
+
+    };
+    const handleCheckboxClickColor = (itemName) => {
+        setChooseColor(prevTypeChoose => {
+            if (prevTypeChoose.includes(itemName)) {
+                return prevTypeChoose.filter(type => type !== itemName);
+            } else {
+                return [...prevTypeChoose, itemName];
+            }
+        });
+
+    };
+
     useEffect(() => {
         getTypeList();
         getColorList();
         getSizeList();
-    }, [])
+        getProductList(time, chooseColor, min, max, typeChoose);
+    }, [time,min,max,typeChoose,chooseColor])
 
     const PlusIcon = createSvgIcon(
         // credit: plus icon from https://heroicons.com/
@@ -56,172 +100,187 @@ const Product = () => {
     );
     return (
         <>
-            <Header/>
+            <Header cartUpdated={cartUpdated}/>
             <Advertisement/>
-            <div className="ml-3 mr-3">
-                <section className="section" id="products">
-                    <div className="container mb-5">
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="section-heading">
-                                    <h2>Our Latest Products</h2>
-                                    <span>Check out all of our products.</span>
+            {product ?
+                <div className="ml-3 mr-3">
+                    <section className="section" id="products">
+                        <div className="container mb-5">
+                            <div className="row">
+                                <div className="col-lg-12">
+                                    <div className="section-heading">
+                                        <h2>Danh sách sản phẩm</h2>
+                                        <span>Sự hài lòng của bạn là niềm tự của chúng tôi </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-3">
-                            <div>
-                                <Accordion>
-                                    <AccordionSummary
-                                        expandIcon={<PlusIcon/>}
-                                        aria-controls="panel1a-content"
-                                        id="panel1a-header"
-                                    >
-                                        <Typography>Loại sản phẩm</Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        <Typography>
-                                            <div className="radio-group">
+                        <div className="row">
+                            <div className="col-3">
+                                <div>
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<PlusIcon/>}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography>Loại sản phẩm</Typography>
+                                        </AccordionSummary>
+
+
+                                        <AccordionDetails>
+                                            <Typography>
                                                 {type && type.map((item) => (
-                                                    <div key={item}>
+                                                    <div id="checklist">
+                                                        <input defaultChecked="" defaultValue={1} name="r"
+                                                               type="checkbox"
+                                                               id={item.nameType}
+                                                               onClick={() => handleCheckboxClick(item.nameType)}
+                                                        />
+                                                        <label htmlFor={item.nameType}>{item.nameType}</label>
                                                     </div>
                                                 ))}
 
-
-                                                {/*  */}
-                                                {/*<input className="radio-input" name="radio-group" id="radio2"*/}
-                                                {/*       type="radio"/>*/}
-                                                {/*<label className="radio-label" htmlFor="radio2">*/}
-                                                {/*    <span className="radio-inner-circle"/>*/}
-                                                {/*    500k- 800k*/}
-                                                {/*</label>*/}
-                                                {/*<input className="radio-input" name="radio-group" id="radio3"*/}
-                                                {/*       type="radio"/>*/}
-                                                {/*<label className="radio-label" htmlFor="radio3">*/}
-                                                {/*    <span className="radio-inner-circle"/>*/}
-                                                {/*    Trên 800k*/}
-                                                {/*</label>*/}
-                                            </div>
-
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                                <Accordion>
-                                    <AccordionSummary
-                                        expandIcon={<PlusIcon/>}
-                                        aria-controls="panel1a-content"
-                                        id="panel1a-header"
-                                    >
-                                        <Typography>Kích cỡ</Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        <Typography>
-                                            {size && size.map((item) => (
-                                                <div key={item}>
+                                            </Typography>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<PlusIcon/>}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography>Kích cỡ</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Typography>
+                                                {size && size.map((item) => (
+                                                    <div id="checklist">
+                                                        <input defaultChecked="" defaultValue={1} name="r"
+                                                               type="checkbox"
+                                                               id={item.nameSize}/>
+                                                        <label htmlFor={item.nameSize}>{item.nameSize}</label>
+                                                    </div>
+                                                ))}
+                                            </Typography>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<PlusIcon/>}
+                                            aria-controls="panel2a-content"
+                                            id="panel2a-header"
+                                        >
+                                            <Typography>Giá</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Typography>
+                                                <div className="radio-group">
+                                                    <input className="radio-input" name="radio-group" id="800" type="radio" onClick={()=> getPrice(0,800000)} />
+                                                    <label className="radio-label" htmlFor="800">
+                                                        <span className="radio-inner-circle" />
+                                                        0-800.000
+                                                    </label>
+                                                    <input className="radio-input" name="radio-group" id="900" type="radio" onClick={()=> getPrice(800000,1000000)}/>
+                                                    <label className="radio-label" htmlFor="900">
+                                                        <span className="radio-inner-circle" />
+                                                        800.000 - 1.000.000
+                                                    </label>
+                                                    <input className="radio-input" name="radio-group" id="1000.0" type="radio" onClick={()=> getPrice(1000000,1500000)}/>
+                                                    <label className="radio-label" htmlFor="1000.0">
+                                                        <span className="radio-inner-circle" />
+                                                        Trên 1000000
+                                                    </label>
 
                                                 </div>
-                                            ))}
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                                <Accordion>
-                                    <AccordionSummary
-                                        expandIcon={<PlusIcon/>}
-                                        aria-controls="panel2a-content"
-                                        id="panel2a-header"
-                                    >
-                                        <Typography>Giá</Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        <Typography>
-                                            <div className="radio-group">
-                                            </div>
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                                <Accordion>
-                                    <AccordionSummary
-                                        expandIcon={<PlusIcon/>}
-                                        aria-controls="panel2a-content"
-                                        id="panel2a-header"
-                                    >
-                                        <Typography>Màu sắc</Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        <Typography>
-                                            <div className="d-flex">
-                                                <div style={{
-                                                    width: "37.5px",
-                                                    height: "37.5px",
-                                                    background: "red",
-                                                    borderRadius: "50%"
-                                                }}>
+
+
+                                            </Typography>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<PlusIcon/>}
+                                            aria-controls="panel2a-content"
+                                            id="panel2a-header"
+                                        >
+                                            <Typography>Màu sắc</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Typography>
+                                                {/*<div className="d-flex">*/}
+                                                {/*    <div style={{*/}
+                                                {/*        width: "37.5px",*/}
+                                                {/*        height: "37.5px",*/}
+                                                {/*        background: "red",*/}
+                                                {/*        borderRadius: "50%"*/}
+                                                {/*    }}>*/}
+                                                {/*    </div>*/}
+
+                                                {/*</div>*/}
+                                                {color && color.map((item) => (
+                                                    <div id="checklist">
+                                                        <input defaultChecked=""  name="r"
+                                                               type="checkbox"
+                                                               id={item.nameColor}
+                                                               onClick={() => handleCheckboxClickColor(item.nameColor)}
+                                                        />
+                                                        <label htmlFor={item.nameColor}>{item.nameColor}</label>
+                                                    </div>
+                                                ))}
+                                            </Typography>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<PlusIcon/>}
+                                            aria-controls="panel2a-content"
+                                            id="panel2a-header"
+                                        >
+                                            <Typography>Xu hướng</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Typography>
+                                                <div className="radio-group">
+                                                    <input className="radio-input" name="radio-group" id="radio1" type="radio" onClick={()=> setTime("2020")} />
+                                                    <label className="radio-label" htmlFor="radio1">
+                                                        <span className="radio-inner-circle" />
+                                                        2020
+                                                    </label>
+                                                    <input className="radio-input" name="radio-group" id="radio2" type="radio" onClick={()=> setTime("2021")}/>
+                                                    <label className="radio-label" htmlFor="radio2">
+                                                        <span className="radio-inner-circle" />
+                                                        2021
+                                                    </label>
+                                                    <input className="radio-input" name="radio-group" id="radio3" type="radio" onClick={()=> setTime("2022")}/>
+                                                    <label className="radio-label" htmlFor="radio3">
+                                                        <span className="radio-inner-circle" />
+                                                        2022
+                                                    </label>
+                                                    <input className="radio-input" name="radio-group" id="radio4" type="radio" onClick={()=> setTime("2023")} />
+                                                    <label className="radio-label" htmlFor="radio4">
+                                                        <span className="radio-inner-circle" />
+                                                        2023
+                                                    </label>
                                                 </div>
-
-                                            </div>
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                            </div>
-
-                        </div>
-                        <div className="row col-9">
-                            <div className="col-lg-4">
-                                <div className="item">
-                                    <div className="thumb">
-                                        <div className="hover-content">
-                                            <ul>
-                                                <li>
-                                                    <Link to="/detail">
-                                                        <i className="fa fa-eye"/>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <a href="single-product.html">
-                                                        <i className="fa fa-star"/>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <Link to="/cart">
-                                                        <i className="fa fa-shopping-cart"/>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <img
-                                            src="https://product.hstatic.net/1000184601/product/women_vang_dam_nu_hoa_nhi_summer_wdr_2034_couple_tx_06daa37863f0456eb007e6a2f1615dff_2048x2048.jpg"
-                                            alt=""/>
-                                    </div>
-                                    <div className="down-content">
-                                        <h4>Air Force 1 X</h4>
-                                        <span>$90.00</span>
-                                        <ul className="stars">
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                            <li>
-                                                <i className="fa fa-star"/>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                            </Typography>
+                                        </AccordionDetails>
+                                    </Accordion>
                                 </div>
                             </div>
+                            <div className="row col-9">
+                                {product.length > 0 ? product.map((item) => {
+                                    return (
+                                        <div className="col-4">
+                                            <ProductCard product={item} handleData={handleDataByLoadCart}/>
+                                        </div>
+                                    )
+                                }) : <h1 className='no-products-found'>Không có sản phẩm nào phù hợp</h1>}
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-            </div>
+                </div> : <div>Không tìm thấy sản phẩm</div>}
             <Footer/>
         </>
     );

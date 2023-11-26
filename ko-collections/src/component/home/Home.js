@@ -33,10 +33,12 @@ const Home = () => {
         }
         const data = await getBestSeller();
         setBestsellers(data);
+        setCartUpdated(prevState => !prevState);
     }
     const getNewProductOnHome = async () => {
         const data = await getProductNew();
         setNewProduct(data);
+        setCartUpdated(prevState => !prevState);
     }
     const getProductDetail = (id) => {
         navigate(`/detail/${id}`);
